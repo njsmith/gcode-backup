@@ -12,7 +12,7 @@ import time
 from optparse import OptionParser
 from ConfigParser import SafeConfigParser, NoOptionError
 from zipfile import ZipFile
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
 
 from gdata.projecthosting.client import ProjectHostingClient, Query
 
@@ -85,10 +85,8 @@ def main():
     output_type = safe_get("output-type")
     if output_type != "zip":
         parser.error("'output-type' must be set to 'zip' (for now)")
-    tmp_output = NamedTemporaryFile(prefix="gcode-backup",
-                                    suffix=".zip",
-                                    delete=False)
-    z = ZipFile(tmp_output, "w", allowZip64=True)
+    (tmp_output_fd, tmp_output_path) = mkstemp(prefix="gcode-backup", suffix=".zip")
+    z = ZipFile(os.fdopen(tmp_output_fd, "w"), "w", allowZip64=True)
     
     fetcher = GCodeFetcher(project, username, password)
     base_dir = "%s-%s/issues" % (project,
@@ -104,8 +102,7 @@ def main():
             z.writestr(os.path.join(issue_dir, "comments", comment_id),
                        comment.to_string())
     z.close()
-    tmp_output.close()
-    os.rename(tmp_output.name, output_path)
+    os.rename(tmp_output_path, output_path)
 
 if __name__ == "__main__":
     main()
