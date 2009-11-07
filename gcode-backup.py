@@ -85,7 +85,11 @@ def main():
     output_type = safe_get("output-type")
     if output_type != "zip":
         parser.error("'output-type' must be set to 'zip' (for now)")
-    (tmp_output_fd, tmp_output_path) = mkstemp(prefix="gcode-backup", suffix=".zip")
+    
+    tmp_dir = os.path.dirname(os.path.abspath(output_path))
+    (tmp_output_fd, tmp_output_path) = mkstemp(prefix="gcode-backup",
+                                               suffix=".zip",
+                                               dir=tmp_dir)
     z = ZipFile(os.fdopen(tmp_output_fd, "w"), "w", allowZip64=True)
     
     fetcher = GCodeFetcher(project, username, password)
@@ -103,6 +107,12 @@ def main():
                        comment.to_string())
     z.close()
     os.rename(tmp_output_path, output_path)
+    # mkstemp creates a file with 0600 permissions; open them up again, if
+    # desired:
+    if hasattr(os, "umask"):
+        curr_umask = os.umask(0)
+        os.umask(curr_umask)
+        os.chmod(output_path, 0666 & ~curr_umask)
 
 if __name__ == "__main__":
     main()
