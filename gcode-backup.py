@@ -22,8 +22,8 @@ class GCodeFetcher(object):
         self.client = ProjectHostingClient()
         if username and password:
             source = "-".join([COMPANY_NAME, APPLICATION_NAME, __version__])
-            client.client_login(username, password,
-                                source=source, service="code")
+            self.client.client_login(username, password,
+                                     source=source, service="code")
 
     def get_all(self, get_from):
         start = 1
