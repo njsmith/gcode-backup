@@ -1,5 +1,5 @@
 # Copyright (C) 2009 Nathaniel Smith <njs@pobox.com>
-# Released under the terms of the GNU GPL v2, or, at your option, any
+# Released under the terms of the GNU GPL v3, or, at your option, any
 # later version. See the file COPYING for details.
 
 COMPANY_NAME = "vorpus.org"
